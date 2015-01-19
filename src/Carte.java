@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.File;
@@ -60,19 +61,22 @@ public class Carte extends JPanel {
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
 		System.out.println("repaint Carte");
-		super.paintComponent(g);
+		
 		setOpaque(true);
 		if (aeroport == null) {
+			super.paintComponent(g);
 			g.setColor(Color.YELLOW);
 			g.fillRect(200, 200, 50, 50);
+			
 			return;
 		}
+		super.paintComponent(g);
 		int i;
 		clean();
-		this.getGraphics().setColor(Color.YELLOW);
+		//this.getGraphics().setColor(Color.YELLOW);
 		//this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX), (int)((centre.getY()+min.getY())*echelleY), (int)((centre.getX()+max.getX())*echelleX), (int)((centre.getY()+max.getY())*echelleY));
 		System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " + (int)((centre.getY()+min.getY())*echelleY) +" "+ (int)((centre.getX()+max.getX())*echelleX) +" "+ (int)((centre.getY()+max.getY())*echelleY));
-		
+		/*
 		for(i=0;i<aeroport.getListeLine().size();i++)
 		{
 			for(int j=0;j<aeroport.getListeLine().get(i).getCoordonnees().size();j++)
@@ -97,7 +101,7 @@ public class Carte extends JPanel {
 				if (isVisible(aeroport.getListeRunway().get(i).getListePoint().get(j).getCoordonnees())) new Ligne(centre, aeroport.getListeRunway().get(i).getListePoint().get(j-1).getCoordonnees(), aeroport.getListeRunway().get(i).getListePoint().get(j).getCoordonnees(), Color.GREEN, 2, this.getGraphics(), getEchelleX(), getEchelleY());
 			}
 		}
-		
+		*/
 		for(i=0;i<aeroport.getListePoint().size();i++)
 		{
 			if (isVisible(aeroport.getListePoint().get(i).getCoordonnees())) new Rond(centre, aeroport.getListePoint().get(i).getCoordonnees(), Color.YELLOW, 2, this.getGraphics(), getEchelleX(), getEchelleY());
@@ -142,6 +146,10 @@ public class Carte extends JPanel {
 	boolean isVisible(Coord coordonnees) {
 		if ((coordonnees.getX()<max.getX()) && (coordonnees.getX()>min.getX()) && (coordonnees.getY()<max.getY()) && (coordonnees.getY()>min.getY())) return true;
 		else return false;
+	}
+	
+	public Carte() {
+		setBorder(BorderFactory.createLineBorder(Color.black));
 	}
 
 }

@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,10 @@ public class CarteVols extends JPanel {
 	private double echelleX = 1;
 	private double echelleY = 1;
 	private int entier = 0;
+	
+	
+	RedSquare redSquare = new RedSquare();
+	
 	
 	public void incEntier() {
 		entier++;
@@ -58,12 +64,15 @@ public class CarteVols extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
-		System.out.println("repaint CarteVols "+entier);
+		System.out.println("repaint CarteVols");
 		setOpaque(false);
-		//if (entier==1) return;
 		super.paintComponent(g);
 		g.setColor(Color.BLUE);
 		g.fillRect(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+	}
+	
+	public void draw(){
+		repaint(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
 	}
 	
 	public void clean()
@@ -102,6 +111,10 @@ public class CarteVols extends JPanel {
 	boolean isVisible(Coord coordonnees) {
 		if ((coordonnees.getX()<max.getX()) && (coordonnees.getX()>min.getX()) && (coordonnees.getY()<max.getY()) && (coordonnees.getY()>min.getY())) return true;
 		else return false;
+	}
+	
+	public CarteVols() {
+		setBorder(BorderFactory.createLineBorder(Color.black));
 	}
 
 }
