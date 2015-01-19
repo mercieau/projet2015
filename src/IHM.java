@@ -14,9 +14,9 @@ public class IHM extends JPanel{
 
 	private Aeroport aeroport = new Aeroport();
 	
-	JLayeredPane visualisation;
+	JLayeredPane visualisation = new JLayeredPane();
 	Carte carte = new Carte();
-	Carte vols = new Carte();
+	CarteVols vols = new CarteVols();
 	JPanel pVols = new JPanel();
 	JFrame frame = new JFrame("");
 	JPanel panPrincipal = new JPanel();
@@ -35,20 +35,15 @@ public class IHM extends JPanel{
 	{
 		// carte
 		System.out.println(carte.getCentre().getX() + " " + carte.getCentre().getY());
-		carte.setBackground(Color.BLACK);
+		//carte.setBackground(Color.BLACK);
 		carte.setPreferredSize(new Dimension(900,600));
 		
-		/********/
-		visualisation = new JLayeredPane();  
-	    visualisation.setLayout(null);  
-		vols.setBackground(Color.BLACK);
+		/********/  
 		vols.setPreferredSize(new Dimension(900,600));
 		visualisation.setPreferredSize(new Dimension(900,600));
-		//pVols.add(vols);
-		visualisation.add(vols,new Integer(0)/*JLayeredPane.DEFAULT_LAYER*/, 0); // avec vols à 0 et carte à 1 : pas d'affichage de la carte // avec vols à 1 et carte à 0 affichage de la carte mais pas de vols
-		visualisation.add(carte,new Integer(0)/*JLayeredPane.DEFAULT_LAYER*/, 1);
+		visualisation.add(vols,new Integer(100)/*JLayeredPane.DEFAULT_LAYER*/); // avec vols ï¿½ 0 et carte ï¿½ 1 : pas d'affichage de la carte // avec vols ï¿½ 1 et carte ï¿½ 0 affichage de la carte mais pas de vols
+		visualisation.add(carte,new Integer(0));
 		
-		//pVols.setOpaque(true);
 		//visualisation.moveToFront(vols);
 		//visualisation.moveToBack(carte);
 		
@@ -57,6 +52,8 @@ public class IHM extends JPanel{
 		visualisation.setOpaque(false);
 		visualisation.setVisible(true);
 		panPrincipal.add(visualisation);
+		
+		//visualisation.moveToFront(carte);
 		/********/
 		
 		carte.addMouseWheelListener(new ListenerWheel());
@@ -112,17 +109,18 @@ public class IHM extends JPanel{
 						}
 					}		
 				}
+				carte.setAeroport(aeroport);
 				carte.setMin(aeroport.getMin());
 				carte.setMax(aeroport.getMax());
 				System.out.println(aeroport.getMin().getX() +" " + aeroport.getMin().getY());
 				System.out.println(aeroport.getMax().getX() +" " + aeroport.getMax().getY());
 				carte.calculCentre();
-				carte.clean();
-				carte.draw(aeroport);
-				
-				/***************/vols.repaint();
-				//carte.clean();
-				//carte.zoom(aeroport, new Coord(-500,-500), new Coord(500,500));
+				vols.incEntier();
+				//visualisation.removeAll();
+				//visualisation.add(vols,new Integer(0)/*JLayeredPane.DEFAULT_LAYER*/); // avec vols ï¿½ 0 et carte ï¿½ 1 : pas d'affichage de la carte // avec vols ï¿½ 1 et carte ï¿½ 0 affichage de la carte mais pas de vols
+				//visualisation.add(carte,new Integer(100)/*JLayeredPane.DEFAULT_LAYER*/);
+				carte.repaint();
+				visualisation.setVisible(true);
 			}
 		}
 	}
@@ -139,9 +137,10 @@ public class IHM extends JPanel{
 				carte.setEchelleX(carte.getEchelleX()/2);
 				carte.setEchelleY(carte.getEchelleY()/2);
 			}
-			carte.clean();
-			carte.draw(aeroport);
+			//carte.clean();
+			carte.repaint();
 			System.out.println("mousewheel");
+			vols.incEntier();
 		}
 	}
 	

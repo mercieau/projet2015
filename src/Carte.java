@@ -8,18 +8,19 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.plaf.LayerUI;
 
-public class Carte extends Canvas {
+public class Carte extends JPanel {
 	
 	private Coord min = new Coord(0,0);
 	private Coord max = new Coord(0,0);
 	private Coord centre = new Coord(0,0);
 	private double echelleX = 1;
 	private double echelleY = 1;
+	private Aeroport aeroport;
 	
-	Graphics gCarte;
-	Graphics gVols;
-	Canvas lCarte;
-	Canvas lVols;
+	
+	public void setAeroport(Aeroport a) {
+		aeroport = a;
+	}
 	
 	public double getEchelleX() {
 		return echelleX;
@@ -54,66 +55,55 @@ public class Carte extends Canvas {
 		System.out.println("min:" + ((min.getX()+centre.getX())*echelleX) + " " + ((centre.getY()+min.getY())*echelleY));
 	}
 	
-	
-	public void draw(Aeroport a)
-	{
-		int i;
-		this.getGraphics().setColor(Color.YELLOW);
-		this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX), (int)((centre.getY()+min.getY())*echelleY), (int)((centre.getX()+max.getX())*echelleX), (int)((centre.getY()+max.getY())*echelleY));
-		System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " + (int)((centre.getY()+min.getY())*echelleY) +" "+ (int)((centre.getX()+max.getX())*echelleX) +" "+ (int)((centre.getY()+max.getY())*echelleY));
-		for(i=0;i<a.getListePoint().size();i++)
-		{
-			if (isVisible(a.getListePoint().get(i).getCoordonnees())) new Rond(centre, a.getListePoint().get(i).getCoordonnees(), Color.YELLOW, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+
+	@Override
+	protected void paintComponent(Graphics g) {
+		// TODO Auto-generated method stub
+		System.out.println("repaint Carte");
+		super.paintComponent(g);
+		setOpaque(true);
+		if (aeroport == null) {
+			g.setColor(Color.YELLOW);
+			g.fillRect(200, 200, 50, 50);
+			return;
 		}
-		for(i=0;i<a.getListeLine().size();i++)
+		int i;
+		clean();
+		this.getGraphics().setColor(Color.YELLOW);
+		//this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX), (int)((centre.getY()+min.getY())*echelleY), (int)((centre.getX()+max.getX())*echelleX), (int)((centre.getY()+max.getY())*echelleY));
+		System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " + (int)((centre.getY()+min.getY())*echelleY) +" "+ (int)((centre.getX()+max.getX())*echelleX) +" "+ (int)((centre.getY()+max.getY())*echelleY));
+		
+		for(i=0;i<aeroport.getListeLine().size();i++)
 		{
-			for(int j=0;j<a.getListeLine().get(i).getCoordonnees().size();j++)
+			for(int j=0;j<aeroport.getListeLine().get(i).getCoordonnees().size();j++)
 			{ 
-				if (isVisible(a.getListeLine().get(i).getCoordonnees().get(j))) new Rond(centre, a.getListeLine().get(i).getCoordonnees().get(j), Color.RED, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+				if (isVisible(aeroport.getListeLine().get(i).getCoordonnees().get(j))) new Rond(centre, aeroport.getListeLine().get(i).getCoordonnees().get(j), Color.RED, 2, this.getGraphics(), getEchelleX(), getEchelleY());
 			}
-			for(int j=1;j<a.getListeLine().get(i).getCoordonnees().size();j++)
+			for(int j=1;j<aeroport.getListeLine().get(i).getCoordonnees().size();j++)
 			{
-				if (isVisible(a.getListeLine().get(i).getCoordonnees().get(j))) new Ligne(centre, a.getListeLine().get(i).getCoordonnees().get(j-1), a.getListeLine().get(i).getCoordonnees().get(j), Color.RED, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+				if (isVisible(aeroport.getListeLine().get(i).getCoordonnees().get(j))) new Ligne(centre, aeroport.getListeLine().get(i).getCoordonnees().get(j-1), aeroport.getListeLine().get(i).getCoordonnees().get(j), Color.RED, 2, this.getGraphics(), getEchelleX(), getEchelleY());
 			}
 			
 		}
-		for(i=0;i<a.getListeRunway().size();i++)
+		for(i=0;i<aeroport.getListeRunway().size();i++)
 		{
-			for(int j=0;j<a.getListeRunway().get(i).getListePoint().size();j++)
+			for(int j=0;j<aeroport.getListeRunway().get(i).getListePoint().size();j++)
 			{
-				if (isVisible(a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees())) new Rond(centre, a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees(), Color.GREEN, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+				if (isVisible(aeroport.getListeRunway().get(i).getListePoint().get(j).getCoordonnees())) new Rond(centre, aeroport.getListeRunway().get(i).getListePoint().get(j).getCoordonnees(), Color.GREEN, 2, this.getGraphics(), getEchelleX(), getEchelleY());
 				//if ((a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees().getX()>max.getX()) || (a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees().getY()>max.getY()) || (a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees().getX()<min.getX()) || (a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees().getY()<min.getY())) System.out.println("probl�me coordonn�es");
 			}
-			for(int j=1;j<a.getListeRunway().get(i).getListePoint().size();j++)
+			for(int j=1;j<aeroport.getListeRunway().get(i).getListePoint().size();j++)
 			{
-				if (isVisible(a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees())) new Ligne(centre, a.getListeRunway().get(i).getListePoint().get(j-1).getCoordonnees(), a.getListeRunway().get(i).getListePoint().get(j).getCoordonnees(), Color.GREEN, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+				if (isVisible(aeroport.getListeRunway().get(i).getListePoint().get(j).getCoordonnees())) new Ligne(centre, aeroport.getListeRunway().get(i).getListePoint().get(j-1).getCoordonnees(), aeroport.getListeRunway().get(i).getListePoint().get(j).getCoordonnees(), Color.GREEN, 2, this.getGraphics(), getEchelleX(), getEchelleY());
 			}
 		}
-	}
-	
-	
-
-	public void paint(Graphics g) {
-		Color c = g.getColor();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, 900, 600);
-		new Carre(centre, new Coord(100,40), Color.GREEN, 100, g, getEchelleX(), getEchelleY());
-		new Rond(centre, new Coord(10,-10), Color.BLUE, 50, g, getEchelleX(), getEchelleY());
-		new Rond(centre, new Coord(100,40), Color.RED, 65, g, getEchelleX(), getEchelleY());
-		new Triangle(centre, new Coord(100, 40), Color.BLACK, 40, g, getEchelleX(), getEchelleY());
-		g.setColor(c);
 		
-		/*
-		// Layers 1&2 are the same size
-	    lCarte = new Canvas();
-	    lVols = new Canvas();
-	    
-	    lCarte.setSize(900, 600);
-	    lVols.setSize(900, 600);
-	        
-	    // Obtain Graphics Contexts
-	    gCarte = lCarte.getGraphics();
-	    gVols = lVols.getGraphics();*/
+		for(i=0;i<aeroport.getListePoint().size();i++)
+		{
+			if (isVisible(aeroport.getListePoint().get(i).getCoordonnees())) new Rond(centre, aeroport.getListePoint().get(i).getCoordonnees(), Color.YELLOW, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+		}
+		
+		
 	}
 	
 	public void clean()
@@ -146,7 +136,7 @@ public class Carte extends Canvas {
 		setMin(coordDebut);
 		setMax(coordFin);
 		calculCentre();
-		draw(a);
+		repaint();
 	}
 	
 	boolean isVisible(Coord coordonnees) {
