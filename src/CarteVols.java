@@ -1,14 +1,6 @@
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.ImageObserver;
-import java.io.File;
-import java.io.IOException;
-import java.text.AttributedCharacterIterator;
-import java.util.ArrayList;
-
+import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.plaf.LayerUI;
 
 public class CarteVols extends JPanel {
 	
@@ -18,7 +10,6 @@ public class CarteVols extends JPanel {
 	private double echelleX = 1;
 	private double echelleY = 1;
 	private int entier = 0;
-	
 	
 	RedSquare redSquare = new RedSquare();
 	
@@ -115,6 +106,9 @@ public class CarteVols extends JPanel {
 	
 	public CarteVols() {
 		setBorder(BorderFactory.createLineBorder(Color.black));
+
 	}
+	
+	
 
 }

@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 public class IHM extends JPanel {
@@ -17,7 +18,9 @@ public class IHM extends JPanel {
 	JFrame frame = new JFrame("");
 	JPanel panPrincipal = new JPanel();
 	JPanel panDroite = new JPanel();
-	JButton bChargerAeroport = new JButton("Charger fichier aéroport");
+	Coord oldCoord = new Coord(0,0);
+	Coord newCoord = new Coord(0,0);
+	JButton bChargerAeroport = new JButton("Charger fichier aï¿½roport");
 	JButton bChargerTrafic = new JButton("Charger fichier trafic");
 	WindowAdapter wa = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
@@ -29,23 +32,28 @@ public class IHM extends JPanel {
 		// carte
 		System.out.println(carte.getCentre().getX() + " "
 				+ carte.getCentre().getY());
-		// définition des tailles des panels
+		// dï¿½finition des tailles des panels
 		carte.setPreferredSize(new Dimension(900, 600));
 		vols.setPreferredSize(new Dimension(900, 600));
-		
+
 		visualisation.setPreferredSize(new Dimension(900, 600));
 		visualisation.add(vols, 0); // layer la plus haute
 		visualisation.add(carte, 100); // layer en dessous
-		carte.setBounds(0, 0, 900, 600); // obligatoire sinon le layeredPane n'affiche rien
+		carte.setBounds(0, 0, 900, 600); // obligatoire sinon le layeredPane
+											// n'affiche rien
 		vols.setBounds(0, 0, 900, 600);
-		visualisation.setOpaque(false);	// non opaque
+		visualisation.setOpaque(false); // non opaque
 		visualisation.setVisible(true);
 		panPrincipal.add(visualisation); // ajout dans le panel principal
 
-		carte.addMouseWheelListener(new ListenerWheel()); // déctection de la wheel de la souris
+		carte.addMouseWheelListener(new ListenerWheel()); // dï¿½ctection de la
+															// wheel de la
+															// souris
 		
-		frame.setLocation(100, 200); // placement de la fenetre sur l'écran, par
-										// rapport au coin en haut à gauche
+		carte.addMouseListener(new Mouse());
+
+		frame.setLocation(100, 200); // placement de la fenetre sur l'ï¿½cran, par
+										// rapport au coin en haut ï¿½ gauche
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // fermeture par
 																// appui sur la
 																// croix
@@ -65,75 +73,160 @@ public class IHM extends JPanel {
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
+	public void translation(int x, int y) {
+		new Thread() {
+			public void run() {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						System.out.println("x : "+x+" y : "+y);
+						System.out.println("MAX : "+carte.getMax().getX()+ " " + carte.getMax().getY());
+						System.out.println("MIN : "+carte.getMin().getX()+ " " + carte.getMin().getY());
+						carte.setMin(new Coord(carte.getMin().getX() + x, carte
+								.getMin().getY() + y));
+						carte.setMax(new Coord(carte.getMax().getX() + x, carte
+								.getMax().getY() + y));
+						System.out.println("MAX : "+carte.getMax().getX()+ " " + carte.getMax().getY());
+						System.out.println("MIN : "+carte.getMin().getX()+ " " + carte.getMin().getY());
+						
+						carte.calculCentre();
+						vols.draw();
+					}
+				});
+			}
+		}.start();
+
+	}
 
 	class ChargerAeroport implements ActionListener {
 		public void actionPerformed(ActionEvent charger) {
-			String fileName;
-			// Exemple numéro 1
-			// Boîte de sélection de fichier à partir du répertoire
-			// "home" de l'utilisateur
-			// création de la boîte de dialogue
-			JFileChooser dialogue = new JFileChooser();
-			// affichage
-			dialogue.showOpenDialog(null);
-			// récupération du fichier sélectionné
-			System.out
-					.println("Fichier choisi : " + dialogue.getSelectedFile());
-			if (dialogue.getSelectedFile() != null) {
-				aeroport.chargerTexte(dialogue.getSelectedFile().getName());
-				for (int i = 0; i < aeroport.getListeRunway().size(); i++) {
-					for (int j = 0; j < aeroport.getListeRunway().get(i)
-							.getListePoint().size(); j++) {
-						for (int k = 0; k < aeroport.getListePoint().size(); k++) {
-							if (aeroport
-									.getListeRunway()
-									.get(i)
-									.getListePoint()
-									.get(j)
-									.getNom()
-									.equals(aeroport.getListePoint().get(k)
-											.getNom())) {
-								aeroport.getListeRunway()
-										.get(i)
-										.getListePoint()
-										.get(j)
-										.setCoordonnees(
-												aeroport.getListePoint().get(k)
-														.getCoordonnees());
+
+			new Thread() {
+				public void run() {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							String fileName;
+							JFileChooser dialogue = new JFileChooser();
+							dialogue.showOpenDialog(null);
+							System.out.println("Fichier choisi : "
+									+ dialogue.getSelectedFile());
+							if (dialogue.getSelectedFile() != null) {
+								aeroport.chargerTexte(dialogue
+										.getSelectedFile().getName());
+								for (int i = 0; i < aeroport.getListeRunway()
+										.size(); i++) {
+									for (int j = 0; j < aeroport
+											.getListeRunway().get(i)
+											.getListePoint().size(); j++) {
+										for (int k = 0; k < aeroport
+												.getListePoint().size(); k++) {
+											if (aeroport
+													.getListeRunway()
+													.get(i)
+													.getListePoint()
+													.get(j)
+													.getNom()
+													.equals(aeroport
+															.getListePoint()
+															.get(k).getNom())) {
+												aeroport.getListeRunway()
+														.get(i)
+														.getListePoint()
+														.get(j)
+														.setCoordonnees(
+																aeroport.getListePoint()
+																		.get(k)
+																		.getCoordonnees());
+											}
+										}
+									}
+								}
+								carte.setAeroport(aeroport);
+								carte.setMin(aeroport.getMin());
+								carte.setMax(aeroport.getMax());
+								System.out.println(aeroport.getMin().getX()
+										+ " " + aeroport.getMin().getY());
+								System.out.println(aeroport.getMax().getX()
+										+ " " + aeroport.getMax().getY());
+								carte.calculCentre();
+								vols.draw();
 							}
 						}
-					}
+					});
 				}
-				carte.setAeroport(aeroport);
-				carte.setMin(aeroport.getMin());
-				carte.setMax(aeroport.getMax());
-				System.out.println(aeroport.getMin().getX() + " "
-						+ aeroport.getMin().getY());
-				System.out.println(aeroport.getMax().getX() + " "
-						+ aeroport.getMax().getY());
-				carte.calculCentre();
-				vols.draw();
-			}
+			}.start();
+
 		}
 	}
 
 	class ListenerWheel implements MouseWheelListener {
-		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
-			if (e.getWheelRotation() > 0) {
-				carte.setEchelleX(carte.getEchelleX() * 2);
-				carte.setEchelleY(carte.getEchelleY() * 2);
-			}
-			if (e.getWheelRotation() < 0) {
-				carte.setEchelleX(carte.getEchelleX() / 2);
-				carte.setEchelleY(carte.getEchelleY() / 2);
-			}
-			System.out.println("mousewheel");
-			vols.draw();
+			new Thread() {
+				public void run() {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							if (e.getWheelRotation() > 0) {
+								carte.setEchelleX(carte.getEchelleX() * 2);
+								carte.setEchelleY(carte.getEchelleY() * 2);
+							}
+							if (e.getWheelRotation() < 0) {
+								carte.setEchelleX(carte.getEchelleX() / 2);
+								carte.setEchelleY(carte.getEchelleY() / 2);
+							}
+							System.out.println("mousewheel");
+							vols.draw();
+						}
+					});
+				}
+			}.start();
 		}
+	}
+	
+	class Mouse implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			oldCoord.setX(e.getX());
+			oldCoord.setY(e.getY());
+			System.out.println("pressed");
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			newCoord.setX(e.getX());
+			newCoord.setY(e.getY());
+			translation(10*(newCoord.getX()-oldCoord.getX()), 10*(newCoord.getY()-oldCoord.getY()));
+			System.out.println("released");
+		}
+		
 	}
 
 	public static void main(String[] args) {
-		IHM ihm = new IHM();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				IHM ihm = new IHM();
+			}
+		});
+
 	}
 }
