@@ -155,6 +155,7 @@ public class IHM extends JPanel {
 										+ " " + aeroport.getMax().getY());
 								carte.calculCentre();
 								vols.draw();
+								vols.startTimer();
 							}
 						}
 					});
@@ -181,6 +182,7 @@ public class IHM extends JPanel {
 							}
 							System.out.println("mousewheel");
 							vols.draw();
+							System.out.println(vols.getTime());
 						}
 					});
 				}

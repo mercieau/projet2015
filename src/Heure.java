@@ -1,26 +1,34 @@
 
 public class Heure {
-	private int pas = 5;
-	private int secondes = 0;
-	public int getPas() {
-		return pas;
-	}
-	public void setPas(int pas) {
-		this.pas = pas;
-	}
-	public int getSecondes() {
+	
+	private double secondes = 0;
+	
+	public double getSecondes() {
 		return secondes;
 	}
-	public void setSecondes(int secondes) {
+	public void setSecondes(double secondes) {
 		this.secondes = secondes;
 	}
-	public void increment() {
-		secondes += pas;
+	
+	public void increment(double n) {
+		secondes += n;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public Heure() {
+		
+	}
+	
+	public Heure(double n) {
+		secondes = n;
 	}
 	
 	@Override
 	public String toString() {
-		return ""+secondes/60+":"+(secondes - (secondes/60));
+		return ""+(int)(secondes/3600)+":"+(int)((secondes-(int)((int)(secondes/3600)*3600))/60)+":"+(int)(secondes - ((int)(secondes/60)*60));
 	}
 	
 }

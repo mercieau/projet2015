@@ -10,9 +10,11 @@ public class CarteVols extends JPanel {
 	private double echelleX = 1;
 	private double echelleY = 1;
 	private int entier = 0;
+	private Timer timer = new Timer();
 	
 	RedSquare redSquare = new RedSquare();
 	
+		
 	
 	public void incEntier() {
 		entier++;
@@ -51,6 +53,37 @@ public class CarteVols extends JPanel {
 		System.out.println("min:" + ((min.getX()+centre.getX())*echelleX) + " " + ((centre.getY()+min.getY())*echelleY));
 	}
 	
+	public void restartTimer() {
+		timer.setHeure(new Heure(0));
+	}
+	
+	public void setTimer(double n) {
+		timer.setHeure(new Heure(n));
+	}
+	
+	public void stopTimer() {
+		timer.setEtat(0);
+	}
+	
+	public void startTimer() {
+		timer.setEtat(1);
+	}
+	
+	public void startAntiTimer() {
+		timer.setEtat(-1);
+	}
+	
+	public void setPasTimer(int n) {
+		timer.setPas(n);
+	}
+	
+	public int getPasTimer() {
+		return timer.getPas();
+	}
+	
+	public String getTime() {
+		return timer.getHeure().toString();
+	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
