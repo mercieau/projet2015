@@ -6,7 +6,7 @@ public class Rond extends ElementGraphique{
 
 	public Rond(Coord centre, Coord coord, Color c, int t, Graphics g, double d, double e)
 	{
-		super (centre, coord, c, t, g, d, e);
+		super ( centre, coord, c, t, g, d, e);
 	}
 
 	@Override

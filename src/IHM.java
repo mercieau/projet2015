@@ -33,6 +33,13 @@ public class IHM extends JPanel {
 		System.out.println(carte.getCentre().getX() + " "
 				+ carte.getCentre().getY());
 		// d�finition des tailles des panels
+		bChargerAeroport.setPreferredSize(new Dimension(100,50));
+		bChargerTrafic.setPreferredSize(new Dimension(100,50));
+		panDroite.setPreferredSize(new Dimension(100,600));
+		bChargerAeroport.setMaximumSize(new Dimension(100,50));
+		bChargerTrafic.setMaximumSize(new Dimension(100,50));
+		panDroite.setMaximumSize(new Dimension(100,600));
+		
 		carte.setPreferredSize(new Dimension(900, 600));
 		vols.setPreferredSize(new Dimension(900, 600));
 
@@ -79,16 +86,13 @@ public class IHM extends JPanel {
 			public void run() {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						System.out.println("x : "+x+" y : "+y);
-						System.out.println("MAX : "+carte.getMax().getX()+ " " + carte.getMax().getY());
-						System.out.println("MIN : "+carte.getMin().getX()+ " " + carte.getMin().getY());
-						carte.setMin(new Coord(carte.getMin().getX() + x, carte
-								.getMin().getY() + y));
-						carte.setMax(new Coord(carte.getMax().getX() + x, carte
-								.getMax().getY() + y));
-						System.out.println("MAX : "+carte.getMax().getX()+ " " + carte.getMax().getY());
-						System.out.println("MIN : "+carte.getMin().getX()+ " " + carte.getMin().getY());
-						
+						System.out.println("translation de : x : "+x+" y : "+y);
+						carte.setMin(new Coord(carte.getMin().getX() - (int)(x*carte.getEchelleX()), carte
+								.getMin().getY() - (int)(y*carte.getEchelleY())));
+						carte.setMax(new Coord(carte.getMax().getX() - (int)(x*carte.getEchelleX()), carte
+								.getMax().getY() - (int)(y*carte.getEchelleY())));
+						carte.getGraphics().translate((int)(-x*carte.getEchelleX()), (int)(-y*carte.getEchelleY()));
+						carte.setCentre();
 						carte.calculCentre();
 						vols.draw();
 					}
@@ -144,6 +148,7 @@ public class IHM extends JPanel {
 								carte.setAeroport(aeroport);
 								carte.setMin(aeroport.getMin());
 								carte.setMax(aeroport.getMax());
+								carte.setCentre();
 								System.out.println(aeroport.getMin().getX()
 										+ " " + aeroport.getMin().getY());
 								System.out.println(aeroport.getMax().getX()
@@ -166,12 +171,13 @@ public class IHM extends JPanel {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							if (e.getWheelRotation() > 0) {
-								carte.setEchelleX(carte.getEchelleX() * 2);
-								carte.setEchelleY(carte.getEchelleY() * 2);
+								System.out.println("zoom : "+e.getX()+" "+e.getY());
+								carte.zoom(new Coord(e.getX(),e.getY()),true);
 							}
 							if (e.getWheelRotation() < 0) {
-								carte.setEchelleX(carte.getEchelleX() / 2);
-								carte.setEchelleY(carte.getEchelleY() / 2);
+								System.out.println("zoom : "+e.getX()+" "+e.getY());
+								carte.zoom(new Coord(e.getX(),e.getY()),false);
+								
 							}
 							System.out.println("mousewheel");
 							vols.draw();
@@ -215,7 +221,7 @@ public class IHM extends JPanel {
 			// TODO Auto-generated method stub
 			newCoord.setX(e.getX());
 			newCoord.setY(e.getY());
-			translation(10*(newCoord.getX()-oldCoord.getX()), 10*(newCoord.getY()-oldCoord.getY()));
+			translation(5*(newCoord.getX()-oldCoord.getX()), 5*(newCoord.getY()-oldCoord.getY()));
 			System.out.println("released");
 		}
 		

@@ -17,8 +17,8 @@ abstract public class ElementGraphique {
 	
 	public ElementGraphique(Coord centre, Coord coord, Color c, int t, Graphics g, double echelleX, double echelleY)
 	{
-		this.coordonnees.setX((int) (((centre.getX()+coord.getX())*echelleX)));
-		this.coordonnees.setY((int) (((centre.getY()+coord.getY())*echelleY)));
+		this.coordonnees.setX( (int) (((coord.getX()-centre.getX())*echelleX)));
+		this.coordonnees.setY( (int) (((coord.getY()-centre.getY())*echelleY)));
 		this.couleur = c;
 		this.taille = t;
 		tracer(g);
