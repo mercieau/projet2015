@@ -3,18 +3,18 @@
  * @version 1.1
  */
 
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Aeroport 
-{
+public class Aeroport {
 	private ArrayList<Point> listePoint;
 	private ArrayList<Line> listeLine;
 	private ArrayList<Runway> listeRunway;
+	private ArrayList<Vol> listeVol;
 	private String name;
+
 	public Coord getMin() {
 		return min;
 	}
@@ -31,9 +31,9 @@ public class Aeroport
 		this.max = max;
 	}
 
-	private Coord min = new Coord(0,0);
-	private Coord max = new Coord(0,0);
-	
+	private Coord min = new Coord(0, 0);
+	private Coord max = new Coord(0, 0);
+
 	public String getName() {
 		return name;
 	}
@@ -42,8 +42,6 @@ public class Aeroport
 		this.name = name;
 	}
 
-	
-	
 	public ArrayList<Point> getListePoint() {
 		return listePoint;
 	}
@@ -68,32 +66,36 @@ public class Aeroport
 		this.listeRunway = listeRunway;
 	}
 
-	public Aeroport()
-	{
+	public ArrayList<Vol> getListeVol() {
+		return listeVol;
+	}
+
+	public void setListeVol(ArrayList<Vol> listeVol) {
+		this.listeVol = listeVol;
+	}
+
+	public Aeroport() {
 		listePoint = new ArrayList<Point>();
 		listeLine = new ArrayList<Line>();
 		listeRunway = new ArrayList<Runway>();
+		listeVol = new ArrayList<Vol>();
 	}
-	
-	public void chargerTexte(String ficname)
-	{
+
+	public void chargerTexte(String ficname) {
 		Scanner scan = null;
-		
-		try
-		{
+
+		try {
 			scan = new Scanner(new FileReader(ficname));
 			scan.useDelimiter("\n");
-			name = scan.next(); //Extraction du nom de l'aéroport
+			name = scan.next(); // Extraction du nom de l'aéroport
 			listePoint.clear();
-			while(scan.hasNext())
-			{
+			while (scan.hasNext()) {
 				Scanner pt = new Scanner(scan.next());
 				pt.useDelimiter(" ");
 				String element = pt.next();
-				
+
 				/* Si la ligne de texte correspond à un point */
-				if(element.equals("P"))
-				{
+				if (element.equals("P")) {
 					String name = pt.next();
 					int type = pt.nextInt();
 					String coordonnees[];
@@ -101,43 +103,51 @@ public class Aeroport
 					int x = Integer.parseInt(coordonnees[0]);
 					int y = Integer.parseInt(coordonnees[1]);
 					y = -y;
-					if (x>max.getX()) max.setX(x);
-					if (y>max.getY()) max.setY(y);
-					if (x<min.getX()) min.setX(x);
-					if (y<min.getY()) min.setY(y);
-					listePoint.add(new Point(name, type, new Coord(x,y)));
-					
+					if (x > max.getX())
+						max.setX(x);
+					if (y > max.getY())
+						max.setY(y);
+					if (x < min.getX())
+						min.setX(x);
+					if (y < min.getY())
+						min.setY(y);
+					listePoint.add(new Point(name, type, new Coord(x, y)));
+
 				}
-				
+
 				/* Si la ligne de texte correspond à une ligne */
-				if(element.equals("L"))
-				{
+				if (element.equals("L")) {
 					ArrayList<Coord> listeCoord = new ArrayList<Coord>();
 					String name = pt.next();
 					int speedlimit = pt.nextInt();
 					String category = pt.next();
 					String direction = pt.next();
 					Scanner pl = new Scanner(pt.next());
-					pl.useDelimiter(";"); //pl = Point Line
-					while(pl.hasNext()) //tant qu'on trouve des points on les ajoute à la liste 
+					pl.useDelimiter(";"); // pl = Point Line
+					while (pl.hasNext()) // tant qu'on trouve des points on les
+											// ajoute à la liste
 					{
 						String coordonnees[];
 						coordonnees = pl.next().split(",");
 						int x = Integer.parseInt(coordonnees[0]);
 						int y = Integer.parseInt(coordonnees[1]);
 						y = -y;
-						if (x>max.getX()) max.setX(x);
-						if (y>max.getY()) max.setY(y);
-						if (x<min.getX()) min.setX(x);
-						if (y<min.getY()) min.setY(y);
-						listeCoord.add(new Coord(x,y));
+						if (x > max.getX())
+							max.setX(x);
+						if (y > max.getY())
+							max.setY(y);
+						if (x < min.getX())
+							min.setX(x);
+						if (y < min.getY())
+							min.setY(y);
+						listeCoord.add(new Coord(x, y));
 					}
-					listeLine.add(new Line(name, speedlimit, category, direction, listeCoord));
+					listeLine.add(new Line(name, speedlimit, category,
+							direction, listeCoord));
 				}
-				
+
 				/* Si la ligne de texte correspond à un runway */
-				if(element.equals("R"))
-				{
+				if (element.equals("R")) {
 					String name = pt.next();
 					String QFU[] = new String[2];
 					String QFU1 = pt.next();
@@ -148,60 +158,119 @@ public class Aeroport
 					coordonnees = pt.next().split(";");
 					String cd[];
 					cd = coordonnees[0].split(",");
-					int cdX = Integer.parseInt(cd[0],10);
-					int cdY = Integer.parseInt(cd[1],10);
+					int cdX = Integer.parseInt(cd[0], 10);
+					int cdY = Integer.parseInt(cd[1], 10);
 					cdY = -cdY;
 					Coord coordDebut = new Coord(cdX, cdY);
 					String cf[];
 					cf = coordonnees[1].split(",");
-					int cfX = Integer.parseInt(cf[0],10);
-					int cfY = Integer.parseInt(cf[1],10);
+					int cfX = Integer.parseInt(cf[0], 10);
+					int cfY = Integer.parseInt(cf[1], 10);
 					cfY = -cfY;
 					Coord coordFin = new Coord(cfX, cfY);
-					if (cdX>max.getX()) max.setX(cdX);
-					if (cdY>max.getY()) max.setY(cdY);
-					if (cdX<min.getX()) min.setX(cdX);
-					if (cdY<min.getY()) min.setY(cdY);
-					if (cfX>max.getX()) max.setX(cfX);
-					if (cfY>max.getY()) max.setY(cfY);
-					if (cfX<min.getX()) min.setX(cfX);
-					if (cfY<min.getY()) min.setY(cfY);
+					if (cdX > max.getX())
+						max.setX(cdX);
+					if (cdY > max.getY())
+						max.setY(cdY);
+					if (cdX < min.getX())
+						min.setX(cdX);
+					if (cdY < min.getY())
+						min.setY(cdY);
+					if (cfX > max.getX())
+						max.setX(cfX);
+					if (cfY > max.getY())
+						max.setY(cfY);
+					if (cfX < min.getX())
+						min.setX(cfX);
+					if (cfY < min.getY())
+						min.setY(cfY);
 					ArrayList<Point> listePoint = new ArrayList<Point>();
 					Scanner pr = new Scanner(pt.next());
-					pr.useDelimiter(";");	
-					while(pr.hasNext()) //tant qu'on trouve des points on les ajoute à la liste 
+					pr.useDelimiter(";");
+					while (pr.hasNext()) // tant qu'on trouve des points on les
+											// ajoute à la liste
 					{
-						listePoint.add(new Point(pr.next(), 0, new Coord(0, 0)));
+						listePoint
+								.add(new Point(pr.next(), 0, new Coord(0, 0)));
 					}
-					
-					listeRunway.add(new Runway(name, QFU, coordDebut, coordFin, listePoint));
+
+					listeRunway.add(new Runway(name, QFU, coordDebut, coordFin,
+							listePoint));
 				}
 			}
-			
-		}
-		catch(FileNotFoundException e1)
-		{
+
+		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		/** Partie Test: Affichage dans la console **/
-		
+
 		System.out.println(name);
-		
-		for(int i=0;i<listePoint.size();i++) 
-		{
+
+		for (int i = 0; i < listePoint.size(); i++) {
 			listePoint.get(i).affichePoint();
 		}
-		
-		for(int i=0;i<listeLine.size();i++) 
-		{
+
+		for (int i = 0; i < listeLine.size(); i++) {
 			listeLine.get(i).afficheLine();
 		}
-		
-		for(int i=0;i<listeRunway.size();i++) 
-		{
+
+		for (int i = 0; i < listeRunway.size(); i++) {
 			listeRunway.get(i).afficheRunway();
-		}		
+		}
+	}
+
+	public void chargerTrafic(String ficname) {
+		Scanner scan = null;
+
+		try {
+			scan = new Scanner(new FileReader(ficname));
+			scan.useDelimiter("\n");
+			listeVol.clear();
+			while (scan.hasNext()) {
+				Scanner pt = new Scanner(scan.next());
+				pt.useDelimiter(" ");
+
+				ArrayList<Coord> listeCoord = new ArrayList<Coord>();
+				String typeVol = pt.next();
+				String idVol = pt.next();
+				String catAvion = pt.next();
+				String nomPoint = pt.next();
+				Point p = new Point(nomPoint, 0, new Coord(0,0));
+				String QFU = pt.next();
+				int tempsDepart = pt.nextInt();
+				String tmp = pt.next();
+				//Scanner pl = new Scanner(pt.next());
+				//pl.useDelimiter(" "); // pl = Point Line
+				while (pt.hasNext()) // tant qu'on trouve des coordonnées on les
+										// ajoute à la liste
+				{
+					String coordonnees[];
+					coordonnees = pt.next().split(",");
+					int x = Integer.parseInt(coordonnees[0]);
+					int y = Integer.parseInt(coordonnees[1]);
+					y = -y;
+					if (x > max.getX())
+						max.setX(x);
+					if (y > max.getY())
+						max.setY(y);
+					if (x < min.getX())
+						min.setX(x);
+					if (y < min.getY())
+						min.setY(y);
+					listeCoord.add(new Coord(x, y));
+				}
+				listeVol.add(new Vol(typeVol, idVol, catAvion, QFU,
+						p, new Heure(tempsDepart), listeCoord));
+			}
+
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+
+		/** Partie Test: Affichage dans la console **/
+		for (int i = 0; i < listeVol.size(); i++) {
+			listeVol.get(i).afficheVol();
+		}
 	}
 }
-

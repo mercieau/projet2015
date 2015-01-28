@@ -18,8 +18,8 @@ public class IHM extends JPanel {
 	JFrame frame = new JFrame("");
 	JPanel panPrincipal = new JPanel();
 	JPanel panDroite = new JPanel();
-	Coord oldCoord = new Coord(0,0);
-	Coord newCoord = new Coord(0,0);
+	Coord oldCoord = new Coord(0, 0);
+	Coord newCoord = new Coord(0, 0);
 	JButton bChargerAeroport = new JButton("Charger fichier a�roport");
 	JButton bChargerTrafic = new JButton("Charger fichier trafic");
 	WindowAdapter wa = new WindowAdapter() {
@@ -33,13 +33,13 @@ public class IHM extends JPanel {
 		System.out.println(carte.getCentre().getX() + " "
 				+ carte.getCentre().getY());
 		// d�finition des tailles des panels
-		bChargerAeroport.setPreferredSize(new Dimension(100,50));
-		bChargerTrafic.setPreferredSize(new Dimension(100,50));
-		panDroite.setPreferredSize(new Dimension(100,600));
-		bChargerAeroport.setMaximumSize(new Dimension(100,50));
-		bChargerTrafic.setMaximumSize(new Dimension(100,50));
-		panDroite.setMaximumSize(new Dimension(100,600));
-		
+		bChargerAeroport.setPreferredSize(new Dimension(100, 50));
+		bChargerTrafic.setPreferredSize(new Dimension(100, 50));
+		panDroite.setPreferredSize(new Dimension(100, 600));
+		bChargerAeroport.setMaximumSize(new Dimension(100, 50));
+		bChargerTrafic.setMaximumSize(new Dimension(100, 50));
+		panDroite.setMaximumSize(new Dimension(100, 600));
+
 		carte.setPreferredSize(new Dimension(900, 600));
 		vols.setPreferredSize(new Dimension(900, 600));
 
@@ -56,7 +56,7 @@ public class IHM extends JPanel {
 		carte.addMouseWheelListener(new ListenerWheel()); // d�ctection de la
 															// wheel de la
 															// souris
-		
+
 		carte.addMouseListener(new Mouse());
 
 		frame.setLocation(100, 200); // placement de la fenetre sur l'�cran, par
@@ -77,21 +77,29 @@ public class IHM extends JPanel {
 		panDroite.add(bChargerAeroport);
 		panDroite.add(bChargerTrafic);
 		bChargerAeroport.addActionListener(new ChargerAeroport());
+		bChargerTrafic.addActionListener(new ChargerTrafic());
 		frame.pack();
 		frame.setVisible(true);
 	}
-	
+
 	public void translation(int x, int y) {
 		new Thread() {
 			public void run() {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						System.out.println("translation de : x : "+x+" y : "+y);
-						carte.setMin(new Coord(carte.getMin().getX() - (int)(x*carte.getEchelleX()), carte
-								.getMin().getY() - (int)(y*carte.getEchelleY())));
-						carte.setMax(new Coord(carte.getMax().getX() - (int)(x*carte.getEchelleX()), carte
-								.getMax().getY() - (int)(y*carte.getEchelleY())));
-						carte.getGraphics().translate((int)(-x*carte.getEchelleX()), (int)(-y*carte.getEchelleY()));
+						System.out.println("translation de : x : " + x
+								+ " y : " + y);
+						carte.setMin(new Coord(carte.getMin().getX()
+								- (int) (x * carte.getEchelleX()), carte
+								.getMin().getY()
+								- (int) (y * carte.getEchelleY())));
+						carte.setMax(new Coord(carte.getMax().getX()
+								- (int) (x * carte.getEchelleX()), carte
+								.getMax().getY()
+								- (int) (y * carte.getEchelleY())));
+						carte.getGraphics().translate(
+								(int) (-x * carte.getEchelleX()),
+								(int) (-y * carte.getEchelleY()));
 						carte.setCentre();
 						carte.calculCentre();
 						vols.draw();
@@ -165,6 +173,64 @@ public class IHM extends JPanel {
 		}
 	}
 
+	class ChargerTrafic implements ActionListener {
+		public void actionPerformed(ActionEvent charger) {
+
+			new Thread() {
+				public void run() {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							String fileName;
+							JFileChooser dialogue = new JFileChooser();
+							dialogue.showOpenDialog(null);
+							System.out.println("Fichier choisi : "
+									+ dialogue.getSelectedFile());
+							if (dialogue.getSelectedFile() != null) {
+								aeroport.chargerTrafic(dialogue
+										.getSelectedFile().getName());
+								for (int i = 0; i < aeroport.getListeVol()
+										.size(); i++) {
+									for (int k = 0; k < aeroport
+											.getListePoint().size(); k++) {
+										if (aeroport
+												.getListeVol()
+												.get(i)
+												.getPointDepart()
+												.getNom()
+												.equals(aeroport
+														.getListePoint().get(k)
+														.getNom())) {
+											aeroport.getListeVol()
+													.get(i)
+													.getPointDepart()
+													.setCoordonnees(
+															aeroport.getListePoint()
+																	.get(k)
+																	.getCoordonnees());
+										}
+									}
+								}
+							}
+							vols.setAeroport(aeroport);
+							vols.setMin(aeroport.getMin());
+							vols.setMax(aeroport.getMax());
+							vols.setCentre();
+							System.out.println(aeroport.getMin().getX() + " "
+									+ aeroport.getMin().getY());
+							System.out.println(aeroport.getMax().getX() + " "
+									+ aeroport.getMax().getY());
+							vols.calculCentre();
+							vols.draw();
+							//vols.repaint();
+							vols.startTimer();
+						}
+					});
+				}
+			}.start();
+
+		}
+	}
+
 	class ListenerWheel implements MouseWheelListener {
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			new Thread() {
@@ -172,13 +238,15 @@ public class IHM extends JPanel {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							if (e.getWheelRotation() > 0) {
-								System.out.println("zoom : "+e.getX()+" "+e.getY());
-								carte.zoom(new Coord(e.getX(),e.getY()),true);
+								System.out.println("zoom : " + e.getX() + " "
+										+ e.getY());
+								carte.zoom(new Coord(e.getX(), e.getY()), true);
 							}
 							if (e.getWheelRotation() < 0) {
-								System.out.println("zoom : "+e.getX()+" "+e.getY());
-								carte.zoom(new Coord(e.getX(),e.getY()),false);
-								
+								System.out.println("zoom : " + e.getX() + " "
+										+ e.getY());
+								carte.zoom(new Coord(e.getX(), e.getY()), false);
+
 							}
 							System.out.println("mousewheel");
 							vols.draw();
@@ -189,7 +257,7 @@ public class IHM extends JPanel {
 			}.start();
 		}
 	}
-	
+
 	class Mouse implements MouseListener {
 
 		@Override
@@ -201,13 +269,13 @@ public class IHM extends JPanel {
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -223,10 +291,11 @@ public class IHM extends JPanel {
 			// TODO Auto-generated method stub
 			newCoord.setX(e.getX());
 			newCoord.setY(e.getY());
-			translation(5*(newCoord.getX()-oldCoord.getX()), 5*(newCoord.getY()-oldCoord.getY()));
+			translation(5 * (newCoord.getX() - oldCoord.getX()),
+					5 * (newCoord.getY() - oldCoord.getY()));
 			System.out.println("released");
 		}
-		
+
 	}
 
 	public static void main(String[] args) {

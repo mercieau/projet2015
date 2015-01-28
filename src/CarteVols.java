@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 public class CarteVols extends JPanel {
@@ -12,10 +13,21 @@ public class CarteVols extends JPanel {
 	private int entier = 0;
 	private Timer timer = new Timer();
 	
+	private Aeroport aeroport;
+	
 	RedSquare redSquare = new RedSquare();
 	
 		
 	
+	
+	public Aeroport getAeroport() {
+		return aeroport;
+	}
+
+	public void setAeroport(Aeroport aeroport) {
+		this.aeroport = aeroport;
+	}
+
 	public void incEntier() {
 		entier++;
 	}
@@ -38,7 +50,7 @@ public class CarteVols extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
-	public void calculCentre()
+	/*public void calculCentre()
 	{
 		if (max.getX()>(-min.getX())) centre.setX(max.getX()+10);
 		else centre.setX(-min.getX()+10);
@@ -51,6 +63,25 @@ public class CarteVols extends JPanel {
 		System.out.println("centre:" + centre.getX() + " " + centre.getY());
 		System.out.println("max:" + ((max.getX()+centre.getX())*echelleX) + " " + ((centre.getY()+max.getY())*echelleY));
 		System.out.println("min:" + ((min.getX()+centre.getX())*echelleX) + " " + ((centre.getY()+min.getY())*echelleY));
+	}*/
+	public void calculCentre()
+	{
+		/*if (max.getX()>(-min.getX())) centre.setX(max.getX()+10);
+		else centre.setX(-min.getX()+10);
+		if (max.getY()>(-min.getY())) centre.setY(max.getY()+10);
+		else centre.setY(-min.getY()+10);*/
+		
+		
+		/*echelleX = 880.0 / (2*centre.getX());
+		echelleY = 580.0 / (2*centre.getY());*/
+		echelleX = 880.0 / (max.getX()-min.getX());
+		echelleY = 580.0 / (max.getY()-min.getY());
+		
+		
+		System.out.println("echelle:" + echelleX + " " + echelleY);
+		System.out.println("centre:" + centre.getX() + " " + centre.getY());
+		System.out.println("max:" + ((max.getX()-centre.getX())*echelleX) + " " + ((-centre.getY()+max.getY())*echelleY));
+		System.out.println("min:" + ((min.getX()-centre.getX())*echelleX) + " " + ((-centre.getY()+min.getY())*echelleY));
 	}
 	
 	public void restartTimer() {
@@ -84,19 +115,63 @@ public class CarteVols extends JPanel {
 	public String getTime() {
 		return timer.getHeure().toString();
 	}
-
-	@Override
+	
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
 		System.out.println("repaint CarteVols");
-		setOpaque(false);
+		
+		setOpaque(true);
+		if (aeroport == null) {
+			//setOpaque(false);
+			super.paintComponent(g);
+			g.setColor(Color.BLUE);
+			g.fillRect(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+			return;
+		}
 		super.paintComponent(g);
-		g.setColor(Color.BLUE);
-		g.fillRect(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+		int i;
+		clean();
+		//this.getGraphics().setColor(Color.YELLOW);
+		//this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX), (int)((centre.getY()+min.getY())*echelleY), (int)((centre.getX()+max.getX())*echelleX), (int)((centre.getY()+max.getY())*echelleY));
+		//System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " + (int)((centre.getY()+min.getY())*echelleY) +" "+ (int)((centre.getX()+max.getX())*echelleX) +" "+ (int)((centre.getY()+max.getY())*echelleY));
+		
+		for(i=0;i<aeroport.getListeVol().size();i++)
+		{
+			for(int j=0;j<aeroport.getListeVol().get(i).getCoordonnees().size();j++)
+			{
+				if (isVisible(aeroport.getListeVol().get(i).getCoordonnees().get(j))) {
+					new Rond(centre, aeroport.getListeVol().get(i).getCoordonnees().get(j), Color.MAGENTA, 2, this.getGraphics(), getEchelleX(), getEchelleY());
+				}
+				
+			}
+		}
+		
+		
 	}
 	
 	public void draw(){
-		repaint(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+		//repaint(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+		if (aeroport == null) return;
+		Coord coordonnees = new Coord(0,0);
+		for(int i=0;i<aeroport.getListeVol().size();i++)
+		{
+			for(int j=0;j<aeroport.getListeVol().get(i).getCoordonnees().size();j++)
+			{
+				if (isVisible(aeroport.getListeVol().get(i).getCoordonnees().get(j))) {
+					coordonnees.setX( (int) (((aeroport.getListeVol().get(i).getCoordonnees().get(j).getX()-centre.getX())*echelleX)));
+					coordonnees.setY( (int) (((aeroport.getListeVol().get(i).getCoordonnees().get(j).getY()-centre.getY())*echelleY)));
+					repaint(coordonnees.getX(), coordonnees.getY(), 2, 2);
+				}
+				
+			}
+		}
+	}
+	
+	public void setCentre() {
+		getGraphics().translate(-centre.getX(), -centre.getY());
+		getGraphics().translate(min.getX(), min.getY());
+		centre.setX(min.getX());
+		centre.setY(min.getY());
 	}
 	
 	public void clean()

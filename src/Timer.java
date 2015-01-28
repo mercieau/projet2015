@@ -2,9 +2,7 @@
 public class Timer extends Thread {
 	private Heure heure = new Heure();
 	private int pas = 5;
-	private int etat = 0;
-	private Thread thread = new Thread();
-	
+	private int etat = 0;	
 	
 	
 	/**
@@ -51,7 +49,7 @@ public class Timer extends Thread {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		while (heure.getSecondes()<(24*60*60) && (heure.getSecondes()>=0)) { // tant que 24 heures ne se sont pas écoulées
+		while (heure.getSecondes()<(24*60*60) && (heure.getSecondes()>=0)) { // tant que 24 heures ne se sont pas ï¿½coulï¿½es
 			try {
 				synchronized (this) {
 					wait(1000); // attente une seconde
