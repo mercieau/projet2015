@@ -53,11 +53,12 @@ public class IHM extends JPanel {
 		visualisation.setVisible(true);
 		panPrincipal.add(visualisation); // ajout dans le panel principal
 
-		carte.addMouseWheelListener(new ListenerWheel()); // d�ctection de la
-															// wheel de la
-															// souris
+		visualisation.addMouseWheelListener(new ListenerWheel()); // d�ctection
+																	// de la
+		// wheel de la
+		// souris
 
-		carte.addMouseListener(new Mouse());
+		visualisation.addMouseListener(new Mouse());
 
 		frame.setLocation(100, 200); // placement de la fenetre sur l'�cran, par
 										// rapport au coin en haut � gauche
@@ -102,7 +103,20 @@ public class IHM extends JPanel {
 								(int) (-y * carte.getEchelleY()));
 						carte.setCentre();
 						carte.calculCentre();
+
+						vols.setMin(new Coord(vols.getMin().getX()
+								- (int) (x * vols.getEchelleX()), vols.getMin()
+								.getY() - (int) (y * vols.getEchelleY())));
+						vols.setMax(new Coord(vols.getMax().getX()
+								- (int) (x * vols.getEchelleX()), vols.getMax()
+								.getY() - (int) (y * vols.getEchelleY())));
+						vols.getGraphics().translate(
+								(int) (-x * vols.getEchelleX()),
+								(int) (-y * vols.getEchelleY()));
+						vols.setCentre();
+						vols.calculCentre();
 						vols.draw();
+						//visualisation.repaint();
 					}
 				});
 			}
@@ -163,6 +177,7 @@ public class IHM extends JPanel {
 										+ " " + aeroport.getMax().getY());
 								carte.calculCentre();
 								vols.draw();
+								//visualisation.repaint();
 								vols.startTimer();
 							}
 						}
@@ -183,9 +198,10 @@ public class IHM extends JPanel {
 							String fileName;
 							JFileChooser dialogue = new JFileChooser();
 							dialogue.showOpenDialog(null);
-							System.out.println("Fichier choisi : "
-									+ dialogue.getSelectedFile());
+
 							if (dialogue.getSelectedFile() != null) {
+								System.out.println("Fichier choisi : "
+										+ dialogue.getSelectedFile());
 								aeroport.chargerTrafic(dialogue
 										.getSelectedFile().getName());
 								for (int i = 0; i < aeroport.getListeVol()
@@ -210,19 +226,21 @@ public class IHM extends JPanel {
 										}
 									}
 								}
+
+								vols.setAeroport(aeroport);
+								vols.setMin(aeroport.getMin());
+								vols.setMax(aeroport.getMax());
+								vols.setCentre();
+								System.out.println(aeroport.getMin().getX()
+										+ " " + aeroport.getMin().getY());
+								System.out.println(aeroport.getMax().getX()
+										+ " " + aeroport.getMax().getY());
+								vols.calculCentre();
+								
+								//visualisation.repaint();
+								vols.draw();
+								vols.startTimer();
 							}
-							vols.setAeroport(aeroport);
-							vols.setMin(aeroport.getMin());
-							vols.setMax(aeroport.getMax());
-							vols.setCentre();
-							System.out.println(aeroport.getMin().getX() + " "
-									+ aeroport.getMin().getY());
-							System.out.println(aeroport.getMax().getX() + " "
-									+ aeroport.getMax().getY());
-							vols.calculCentre();
-							vols.draw();
-							//vols.repaint();
-							vols.startTimer();
 						}
 					});
 				}
@@ -241,15 +259,18 @@ public class IHM extends JPanel {
 								System.out.println("zoom : " + e.getX() + " "
 										+ e.getY());
 								carte.zoom(new Coord(e.getX(), e.getY()), true);
+								vols.zoom(new Coord(e.getX(), e.getY()), true);
 							}
 							if (e.getWheelRotation() < 0) {
 								System.out.println("zoom : " + e.getX() + " "
 										+ e.getY());
 								carte.zoom(new Coord(e.getX(), e.getY()), false);
+								vols.zoom(new Coord(e.getX(), e.getY()), false);
 
 							}
 							System.out.println("mousewheel");
 							vols.draw();
+							//visualisation.repaint();
 							System.out.println(vols.getTime());
 						}
 					});

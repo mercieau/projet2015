@@ -15,4 +15,8 @@ public class Carre extends ElementGraphique{
 		g.setColor(getCouleur());
 		g.fillRect(getCoordonnees().getX()-getTaille()/2,getCoordonnees().getY()-getTaille()/2,getTaille(),getTaille());
 	}
+	
+	void effacer(Graphics g) {
+		g.clearRect(getCoordonnees().getX()-getTaille()/2,getCoordonnees().getY()-getTaille()/2,getTaille(),getTaille());
+	}
 }

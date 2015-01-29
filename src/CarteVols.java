@@ -1,5 +1,6 @@
 import java.awt.*;
-import java.awt.event.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -12,6 +13,7 @@ public class CarteVols extends JPanel {
 	private double echelleY = 1;
 	private int entier = 0;
 	private Timer timer = new Timer();
+	private ArrayList<Carre> listeCarre = new ArrayList<Carre>();
 	
 	private Aeroport aeroport;
 	
@@ -119,53 +121,166 @@ public class CarteVols extends JPanel {
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
 		System.out.println("repaint CarteVols");
-		
-		setOpaque(true);
+
+		setOpaque(false);
 		if (aeroport == null) {
-			//setOpaque(false);
+			// setOpaque(false);
+			System.out.println("repaint CarteVols : aéroport non défini");
 			super.paintComponent(g);
 			g.setColor(Color.BLUE);
-			g.fillRect(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+			g.fillRect(120 + entier * 5, 120 + entier * 5, 100 / (entier + 1),
+					100 / (entier + 1));
 			return;
 		}
 		super.paintComponent(g);
-		int i;
-		clean();
-		//this.getGraphics().setColor(Color.YELLOW);
-		//this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX), (int)((centre.getY()+min.getY())*echelleY), (int)((centre.getX()+max.getX())*echelleX), (int)((centre.getY()+max.getY())*echelleY));
-		//System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " + (int)((centre.getY()+min.getY())*echelleY) +" "+ (int)((centre.getX()+max.getX())*echelleX) +" "+ (int)((centre.getY()+max.getY())*echelleY));
-		
-		for(i=0;i<aeroport.getListeVol().size();i++)
-		{
-			for(int j=0;j<aeroport.getListeVol().get(i).getCoordonnees().size();j++)
-			{
-				if (isVisible(aeroport.getListeVol().get(i).getCoordonnees().get(j))) {
-					new Rond(centre, aeroport.getListeVol().get(i).getCoordonnees().get(j), Color.MAGENTA, 2, this.getGraphics(), getEchelleX(), getEchelleY());
-				}
+		// clean();
+		// this.getGraphics().setColor(Color.YELLOW);
+		// this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX),
+		// (int)((centre.getY()+min.getY())*echelleY),
+		// (int)((centre.getX()+max.getX())*echelleX),
+		// (int)((centre.getY()+max.getY())*echelleY));
+		// System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " +
+		// (int)((centre.getY()+min.getY())*echelleY) +" "+
+		// (int)((centre.getX()+max.getX())*echelleX) +" "+
+		// (int)((centre.getY()+max.getY())*echelleY));
+
+		/*new Thread() {
+			public void run() {
+				
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {*/
+							// effacer tous les carrés de la liste avant de
+							// redessiner
+							for (int k = 0; k < listeCarre.size(); k++)
+								listeCarre.get(k).effacer(getGraphics());
+
+							Coord coordonnees = new Coord(0, 0);
+
+							for (int i = 0; /* i<aeroport.getListeVol().size() */i < 1; i++) {
+								System.out.println("dessin Carrés");
+								for (int j = 0; j < aeroport.getListeVol()
+										.get(i).getCoordonnees().size(); j++) {
+									if (isVisible(aeroport.getListeVol().get(i)
+											.getCoordonnees().get(j))) {
+										// listeCarre.add(new Carre(centre,
+										// aeroport.getListeVol().get(i).getCoordonnees().get(j),
+										// Color.MAGENTA, 8, this.getGraphics(),
+										// getEchelleX(), getEchelleY()));
+										coordonnees
+												.setX((int) (((aeroport
+														.getListeVol().get(i)
+														.getCoordonnees()
+														.get(j).getX() - centre
+														.getX()) * echelleX)));
+										coordonnees
+												.setY((int) (((aeroport
+														.getListeVol().get(i)
+														.getCoordonnees()
+														.get(j).getY() - centre
+														.getY()) * echelleY)));
+										g.setColor(Color.MAGENTA);
+										g.fillRect(coordonnees.getX() - 8 / 2,
+												coordonnees.getY() - 8 / 2, 8,
+												8);
+
+										// System.out.println(j);
+									}
+
+								}
+							}
+						/*}
+					});
 				
 			}
-		}
-		
-		
+		}.start();*/
+		System.out.println("fin repaint CarteVols");
+
 	}
 	
-	public void draw(){
-		//repaint(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
-		if (aeroport == null) return;
-		Coord coordonnees = new Coord(0,0);
-		for(int i=0;i<aeroport.getListeVol().size();i++)
-		{
-			for(int j=0;j<aeroport.getListeVol().get(i).getCoordonnees().size();j++)
-			{
-				if (isVisible(aeroport.getListeVol().get(i).getCoordonnees().get(j))) {
-					coordonnees.setX( (int) (((aeroport.getListeVol().get(i).getCoordonnees().get(j).getX()-centre.getX())*echelleX)));
-					coordonnees.setY( (int) (((aeroport.getListeVol().get(i).getCoordonnees().get(j).getY()-centre.getY())*echelleY)));
-					repaint(coordonnees.getX(), coordonnees.getY(), 2, 2);
-				}
-				
-			}
+	void zoom(Coord coord, boolean plus) {
+		if (plus) {
+			setMin(new Coord(min.getX() - (int)((coord.getX()-440)*echelleX), min.getY() - (int)((coord.getY()-290)*echelleY)));
+			setMax(new Coord(max.getX() - (int)((coord.getX()-440)*echelleX), max.getY() - (int)((coord.getY()-290)*echelleY)));
+			getGraphics().translate((int)(-(coord.getX()-440)*echelleX), (int)(-(coord.getY()-290)*echelleY));	
+			setCentre();
+			calculCentre();
+			echelleX *= 2;
+			echelleY *= 2;
+			setMax(new Coord((int)(min.getX()+880/echelleX),(int)(min.getY()+580/echelleY)));
+			setCentre();
+			calculCentre();
+		} else {
+			setMin(new Coord(min.getX() - (int)((coord.getX()-440)*echelleX), min.getY() - (int)((coord.getY()-290)*echelleY)));
+			setMax(new Coord(max.getX() - (int)((coord.getX()-440)*echelleX), max.getY() - (int)((coord.getY()-290)*echelleY)));
+			getGraphics().translate((int)(-(coord.getX()-440)*echelleX), (int)(-(coord.getY()-290)*echelleY));
+			setCentre();
+			calculCentre();
+			echelleX /= 2;
+			echelleY /= 2;
+			setMax(new Coord((int)(min.getX()+880/echelleX),(int)(min.getY()+580/echelleY)));
+			setCentre();
+			calculCentre();
 		}
 	}
+	
+	public void draw() {
+		System.out.println("draw");
+		// repaint(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
+		if (aeroport == null) {
+			repaint(120 + entier * 5, 120 + entier * 5, 100 / (entier + 1),
+					100 / (entier + 1));
+			return;
+		}
+		// repaint(0,0,1,1);
+
+		// clean();
+		// this.getGraphics().setColor(Color.YELLOW);
+		// this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX),
+		// (int)((centre.getY()+min.getY())*echelleY),
+		// (int)((centre.getX()+max.getX())*echelleX),
+		// (int)((centre.getY()+max.getY())*echelleY));
+		// System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " +
+		// (int)((centre.getY()+min.getY())*echelleY) +" "+
+		// (int)((centre.getX()+max.getX())*echelleX) +" "+
+		// (int)((centre.getY()+max.getY())*echelleY));
+
+		/*new Thread() {
+			public void run() {
+			
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {*/
+
+		Coord coordonnees = new Coord(0, 0);
+		for (int i = 0; /* i<aeroport.getListeVol().size() */i < 1; i++) {
+			for (int j = 0; /*j < aeroport.getListeVol().get(i).getCoordonnees().size()*/j<50; j++) {
+				if (isVisible(aeroport.getListeVol().get(i).getCoordonnees()
+						.get(j))) {
+					coordonnees
+							.setX((int) (((aeroport.getListeVol().get(i)
+									.getCoordonnees().get(j).getX() - centre
+									.getX()) * echelleX)));
+					coordonnees
+							.setY((int) (((aeroport.getListeVol().get(i)
+									.getCoordonnees().get(j).getY() - centre
+									.getY()) * echelleY)));
+					repaint(coordonnees.getX(), coordonnees.getY(), 1, 1);
+					System.out.println("repaint : x=" + coordonnees.getX()
+							+ " y=" + coordonnees.getY());
+				}
+			}
+		}
+
+						/*}
+					});
+				
+			}
+		}.start();*/
+
+	}
+				
+			
+		
+	
 	
 	public void setCentre() {
 		getGraphics().translate(-centre.getX(), -centre.getY());

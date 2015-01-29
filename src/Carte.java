@@ -80,6 +80,7 @@ public class Carte extends JPanel {
 		
 		setOpaque(true);
 		if (aeroport == null) {
+			System.out.println("repaint Carte : aéroport non défini");
 			super.paintComponent(g);
 			g.setColor(Color.YELLOW);
 			g.fillRect(200, 200, 50, 50);
