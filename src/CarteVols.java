@@ -1,260 +1,96 @@
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.*;
 
-public class CarteVols extends JPanel {
+/** classe CarteVols
+ * herite de la classe Carte
+ * carte du trafic
+ * @author Aurelie
+ * @see Carte
+ */
+public class CarteVols extends Carte {
 	
-	private Coord min = new Coord(0,0);
-	private Coord max = new Coord(0,0);
-	private Coord centre = new Coord(0,0);
-	private double echelleX = 1;
-	private double echelleY = 1;
-	private int entier = 0;
-	private Timer timer = new Timer();
-	private ArrayList<Carre> listeCarre = new ArrayList<Carre>();
-	
-	private Aeroport aeroport;
-	
-	RedSquare redSquare = new RedSquare();
-	
-		
-	
-	
-	public Aeroport getAeroport() {
-		return aeroport;
-	}
-
-	public void setAeroport(Aeroport aeroport) {
-		this.aeroport = aeroport;
-	}
-
-	public void incEntier() {
-		entier++;
-	}
-	
-	public double getEchelleX() {
-		return echelleX;
-	}
-
-	public double getEchelleY() {
-		return echelleY;
-	}
-
-	public void setEchelleX(double echelle) {
-		this.echelleX = echelle;
-	}
-	
-	public void setEchelleY(double echelle) {
-		this.echelleY = echelle;
-	}
-
 	private static final long serialVersionUID = 1L;
+	/** secondes ecoulees depuis le debut de la journee */
+	private int secondes = 0;
+	/** variable utilisee pour afficher le trajet d'un avion selectionne un certain temps */
+	private int t = 0;
+	/** variable utilisee pour selectionner un avion sur la carte */
+	private int rayon = 10;
 	
-	/*public void calculCentre()
-	{
-		if (max.getX()>(-min.getX())) centre.setX(max.getX()+10);
-		else centre.setX(-min.getX()+10);
-		if (max.getY()>(-min.getY())) centre.setY(max.getY()+10);
-		else centre.setY(-min.getY()+10);
-		
-		echelleX = 880.0 / (2*centre.getX());
-		echelleY = 580.0 / (2*centre.getY());
-		System.out.println("echelle:" + echelleX + " " + echelleY);
-		System.out.println("centre:" + centre.getX() + " " + centre.getY());
-		System.out.println("max:" + ((max.getX()+centre.getX())*echelleX) + " " + ((centre.getY()+max.getY())*echelleY));
-		System.out.println("min:" + ((min.getX()+centre.getX())*echelleX) + " " + ((centre.getY()+min.getY())*echelleY));
-	}*/
-	public void calculCentre()
-	{
-		/*if (max.getX()>(-min.getX())) centre.setX(max.getX()+10);
-		else centre.setX(-min.getX()+10);
-		if (max.getY()>(-min.getY())) centre.setY(max.getY()+10);
-		else centre.setY(-min.getY()+10);*/
-		
-		
-		/*echelleX = 880.0 / (2*centre.getX());
-		echelleY = 580.0 / (2*centre.getY());*/
-		echelleX = 880.0 / (max.getX()-min.getX());
-		echelleY = 580.0 / (max.getY()-min.getY());
-		
-		
-		System.out.println("echelle:" + echelleX + " " + echelleY);
-		System.out.println("centre:" + centre.getX() + " " + centre.getY());
-		System.out.println("max:" + ((max.getX()-centre.getX())*echelleX) + " " + ((-centre.getY()+max.getY())*echelleY));
-		System.out.println("min:" + ((min.getX()-centre.getX())*echelleX) + " " + ((-centre.getY()+min.getY())*echelleY));
+	
+
+	/** getter de rayon
+	 * @return rayon
+	 */
+	public int getRayon() {
+		return rayon;
 	}
-	
-	public void restartTimer() {
-		timer.setHeure(new Heure(0));
+
+	/** setter de rayon
+	 * @param rayon
+	 */
+	public void setRayon(int rayon) {
+		this.rayon = rayon;
 	}
-	
-	public void setTimer(double n) {
-		timer.setHeure(new Heure(n));
+
+	/** getter de secondes
+	 * 
+	 * @return secondes
+	 */
+	public int getSecondes() {
+		return secondes;
 	}
-	
-	public void stopTimer() {
-		timer.setEtat(0);
+
+	/** setter de secondes
+	 * 
+	 * @param secondes
+	 */
+	public void setSecondes(int secondes) {
+		this.secondes = secondes;
 	}
-	
-	public void startTimer() {
-		timer.setEtat(1);
-	}
-	
-	public void startAntiTimer() {
-		timer.setEtat(-1);
-	}
-	
-	public void setPasTimer(int n) {
-		timer.setPas(n);
-	}
-	
-	public int getPasTimer() {
-		return timer.getPas();
-	}
-	
-	public String getTime() {
-		return timer.getHeure().toString();
-	}
-	
+
+	/** methode appelee par repaint() 
+	 * met a jour les coordonnees des avions en fonction de l'echelle et du centre du repere
+	 * affiche les avions a un instant t defini par le nombre de secondes ecoulees depuis le debut de la journee
+	 * affiche les trajets des avions selectionnes
+	 */
 	protected void paintComponent(Graphics g) {
-		// TODO Auto-generated method stub
-		System.out.println("repaint CarteVols");
-
-		setOpaque(false);
-		if (aeroport == null) {
-			// setOpaque(false);
-			System.out.println("repaint CarteVols : aéroport non défini");
-			super.paintComponent(g);
-			g.setColor(Color.BLUE);
-			g.fillRect(120 + entier * 5, 120 + entier * 5, 100 / (entier + 1),
-					100 / (entier + 1));
-			return;
-		}
+		/** effacement de la zone graphique */
 		super.paintComponent(g);
-		// clean();
-		// this.getGraphics().setColor(Color.YELLOW);
-		// this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX),
-		// (int)((centre.getY()+min.getY())*echelleY),
-		// (int)((centre.getX()+max.getX())*echelleX),
-		// (int)((centre.getY()+max.getY())*echelleY));
-		// System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " +
-		// (int)((centre.getY()+min.getY())*echelleY) +" "+
-		// (int)((centre.getX()+max.getX())*echelleX) +" "+
-		// (int)((centre.getY()+max.getY())*echelleY));
-
-		/*new Thread() {
-			public void run() {
-				
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {*/
-							// effacer tous les carrés de la liste avant de
-							// redessiner
-							for (int k = 0; k < listeCarre.size(); k++)
-								listeCarre.get(k).effacer(getGraphics());
-
-							Coord coordonnees = new Coord(0, 0);
-
-							for (int i = 0; /* i<aeroport.getListeVol().size() */i < 1; i++) {
-								System.out.println("dessin Carrés");
-								for (int j = 0; j < aeroport.getListeVol()
-										.get(i).getCoordonnees().size(); j++) {
-									if (isVisible(aeroport.getListeVol().get(i)
-											.getCoordonnees().get(j))) {
-										// listeCarre.add(new Carre(centre,
-										// aeroport.getListeVol().get(i).getCoordonnees().get(j),
-										// Color.MAGENTA, 8, this.getGraphics(),
-										// getEchelleX(), getEchelleY()));
-										coordonnees
-												.setX((int) (((aeroport
-														.getListeVol().get(i)
-														.getCoordonnees()
-														.get(j).getX() - centre
-														.getX()) * echelleX)));
-										coordonnees
-												.setY((int) (((aeroport
-														.getListeVol().get(i)
-														.getCoordonnees()
-														.get(j).getY() - centre
-														.getY()) * echelleY)));
-										g.setColor(Color.MAGENTA);
-										g.fillRect(coordonnees.getX() - 8 / 2,
-												coordonnees.getY() - 8 / 2, 8,
-												8);
-
-										// System.out.println(j);
-									}
-
-								}
-							}
-						/*}
-					});
-				
-			}
-		}.start();*/
-		System.out.println("fin repaint CarteVols");
-
-	}
-	
-	void zoom(Coord coord, boolean plus) {
-		if (plus) {
-			setMin(new Coord(min.getX() - (int)((coord.getX()-440)*echelleX), min.getY() - (int)((coord.getY()-290)*echelleY)));
-			setMax(new Coord(max.getX() - (int)((coord.getX()-440)*echelleX), max.getY() - (int)((coord.getY()-290)*echelleY)));
-			getGraphics().translate((int)(-(coord.getX()-440)*echelleX), (int)(-(coord.getY()-290)*echelleY));	
-			setCentre();
-			calculCentre();
-			echelleX *= 2;
-			echelleY *= 2;
-			setMax(new Coord((int)(min.getX()+880/echelleX),(int)(min.getY()+580/echelleY)));
-			setCentre();
-			calculCentre();
-		} else {
-			setMin(new Coord(min.getX() - (int)((coord.getX()-440)*echelleX), min.getY() - (int)((coord.getY()-290)*echelleY)));
-			setMax(new Coord(max.getX() - (int)((coord.getX()-440)*echelleX), max.getY() - (int)((coord.getY()-290)*echelleY)));
-			getGraphics().translate((int)(-(coord.getX()-440)*echelleX), (int)(-(coord.getY()-290)*echelleY));
-			setCentre();
-			calculCentre();
-			echelleX /= 2;
-			echelleY /= 2;
-			setMax(new Coord((int)(min.getX()+880/echelleX),(int)(min.getY()+580/echelleY)));
-			setCentre();
-			calculCentre();
-		}
-	}
-	
-	public void draw() {
-		System.out.println("draw");
-		// repaint(120+entier*5, 120+entier*5, 100/(entier+1), 100/(entier+1));
 		if (aeroport == null) {
-			repaint(120 + entier * 5, 120 + entier * 5, 100 / (entier + 1),
-					100 / (entier + 1));
 			return;
 		}
-		// repaint(0,0,1,1);
-
-		// clean();
-		// this.getGraphics().setColor(Color.YELLOW);
-		// this.getGraphics().drawLine((int)((centre.getX()+min.getX())*echelleX),
-		// (int)((centre.getY()+min.getY())*echelleY),
-		// (int)((centre.getX()+max.getX())*echelleX),
-		// (int)((centre.getY()+max.getY())*echelleY));
-		// System.out.println((int)((centre.getX()+min.getX())*echelleX) +" " +
-		// (int)((centre.getY()+min.getY())*echelleY) +" "+
-		// (int)((centre.getX()+max.getX())*echelleX) +" "+
-		// (int)((centre.getY()+max.getY())*echelleY));
-
-		/*new Thread() {
-			public void run() {
-			
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {*/
-
+		
+		/** mise a jour des coordonnees par rapport a la vue et a l'echelle */
 		Coord coordonnees = new Coord(0, 0);
-		for (int i = 0; /* i<aeroport.getListeVol().size() */i < 1; i++) {
-			for (int j = 0; /*j < aeroport.getListeVol().get(i).getCoordonnees().size()*/j<50; j++) {
-				if (isVisible(aeroport.getListeVol().get(i).getCoordonnees()
-						.get(j))) {
+		int n = 0;
+		int nb = 0;		
+		g.setColor(Color.MAGENTA);
+		for (int i = 0;i<aeroport.getListeVol().size(); i++) {
+			/** pour chaque vol, si le vol est selectionne, dessin de son parcours jusqu'au temps t defini par secondes */
+			if (aeroport.getListeVol().get(i).isSelection()) {
+				t++;
+				if (t>20) {
+					/** affichage pendant un certain nombre de repaint */
+					aeroport.getListeVol().get(i).setSelection(false);
+					t=0;
+				}
+				nb = aeroport.getListeVol().get(i).getTemps();
+				for (int m=0;m<aeroport.getListeVol().get(i).getCoordonnees().size()-1;m++) {
+					g.drawLine((int) ((aeroport.getListeVol().get(i).getCoordonnees().get(m).getX()-centre.getX())*echelleX),(int) ((aeroport.getListeVol().get(i).getCoordonnees().get(m).getY()-centre.getY())*echelleY), (int) ((aeroport.getListeVol().get(i).getCoordonnees().get(m+1).getX()-centre.getX())*echelleX),(int) ((aeroport.getListeVol().get(i).getCoordonnees().get(m+1).getY()-centre.getY())*echelleY));
+					nb +=5;
+					if (nb>=secondes) break;
+				}
+			}
+			/** mise a jour des coordonnees */
+			for (int j = 0; j < aeroport.getListeVol().get(i).getCoordonnees()
+					.size(); j++) {
 					coordonnees
 							.setX((int) (((aeroport.getListeVol().get(i)
 									.getCoordonnees().get(j).getX() - centre
@@ -263,75 +99,89 @@ public class CarteVols extends JPanel {
 							.setY((int) (((aeroport.getListeVol().get(i)
 									.getCoordonnees().get(j).getY() - centre
 									.getY()) * echelleY)));
-					repaint(coordonnees.getX(), coordonnees.getY(), 1, 1);
-					System.out.println("repaint : x=" + coordonnees.getX()
-							+ " y=" + coordonnees.getY());
+					aeroport.getListeAvion().get(n).setxPos(coordonnees.getX());
+					aeroport.getListeAvion().get(n).setyPos(coordonnees.getY());
+					n++;
+			}
+		}
+		/** dessin des avions presents au temps defini par secondes */
+		for (int l=0;l<aeroport.getListeAvion().size();l++) aeroport.getListeAvion().get(l).setAffiche(false);
+		for (int k=0;k<aeroport.getListePositions().get(secondes/5).size();k++) {
+			aeroport.getListePositions().get(secondes/5).get(k).getAvion().setAffiche(true);
+			if (aeroport.getListePositions().get(secondes/5).get(k).getAvion().isCollision()) g.setColor(Color.RED);
+			else {
+				if (aeroport.getListePositions().get(secondes/5).get(k).getAvion().getTypeVol().equals("DEP")) g.setColor(Color.YELLOW);
+				else g.setColor(Color.CYAN);
+				if (aeroport.getListePositions().get(secondes/5).get(k).getVol().isSelection()) g.setColor(new Color(52,55,158));
+			}
+			g.fillOval(((int)(aeroport.getListePositions().get(secondes/5).get(k).getAvion().getxPos()))-2,(int)(aeroport.getListePositions().get(secondes/5).get(k).getAvion().getyPos())-2,6,6); 
+		}  
+		
+		
+	}
+	
+	/** methode appelee lors d'un clic sur un avion
+	 * analyse si un avion est dans le rayon du clic, retrouve le vol concerne
+	 * @param x		abscisse de la position du clic
+	 * @param y		ordonnee de la position du clic
+	 * @return		Vol clique
+	 */
+	public Vol getClicked(int x, int y) {
+		/** pour chaque vol, deselection (selection=false) */
+		for (int k=0;k<aeroport.getListeVol().size();k++) aeroport.getListeVol().get(k).setSelection(false);
+		/** pour chaque position d'avion, comparaison de sa date avec la date actuelle pour rechercher parmi les avions affiches */
+		for (int i=0;i<aeroport.getListeAvion().size();i++) {
+			if (aeroport.getListeAvion().get(i).getTime() == secondes) {
+				if ((aeroport.getListeAvion().get(i).getxPos()+2 - x < rayon)
+						&& (aeroport.getListeAvion().get(i).getxPos()+2 - x > (-rayon))
+						&& (((aeroport.getListeAvion().get(i).getyPos()+2 - y < rayon)) && ((aeroport.getListeAvion()
+								.get(i).getyPos()+2 - y > (-rayon))))) {
+					for (int j = 0; j < aeroport.getListeVol().size(); j++) {
+						/** recuperation du vol a retrouver */
+						if (aeroport.getListeVol().get(j).getIdVol()
+								.equals(aeroport.getListeAvion().get(i).getNomVol())) {
+							aeroport.getListeVol().get(j).setSelection(true);
+							return aeroport.getListeVol().get(j);
+						} 
+					}
 				}
 			}
 		}
-
-						/*}
-					});
-				
-			}
-		}.start();*/
-
+		return null;
 	}
-				
-			
+
+	/** methode d'ajout des positions d'avion sur la journee entiere
+	 * 
+	 */
+	public void addAvions() {
+		int n = 0;
+		int k = 0;
+		while (k <= (60 * 60 * 24)) {
+			aeroport.getListePositions().add(new ArrayList<Position>());
+			k+=5;
+		}
 		
-	
-	
-	public void setCentre() {
-		getGraphics().translate(-centre.getX(), -centre.getY());
-		getGraphics().translate(min.getX(), min.getY());
-		centre.setX(min.getX());
-		centre.setY(min.getY());
-	}
-	
-	public void clean()
-	{
-		getGraphics().setColor(Color.WHITE);
-		getGraphics().fillRect(0, 0, 900, 600);
-	}
-
-	public Coord getMin() {
-		return min;
+		Coord coordonnees = new Coord(0, 0);
+		for (int i = 0; i<aeroport.getListeVol().size(); i++) {
+			for (int j = 0; j < aeroport.getListeVol().get(i).getCoordonnees()
+					.size(); j++) {
+					coordonnees.setX((int) (((aeroport.getListeVol().get(i)
+									.getCoordonnees().get(j).getX() - centre
+									.getX()) * echelleX)));
+					coordonnees.setY((int) (((aeroport.getListeVol().get(i)
+									.getCoordonnees().get(j).getY() - centre
+									.getY()) * echelleY)));
+					aeroport.getListeAvion().get(n).setCoordonnees(aeroport.getListeVol().get(i)
+									.getCoordonnees().get(j));
+					n++;
+			}
+		}
 	}
 
-	public void setMin(Coord min) {
-		this.min = min;
-	}
-
-	public Coord getMax() {
-		return max;
-	}
-
-	public void setMax(Coord max) {
-		this.max = max;
-	}
-
-	public Coord getCentre() {
-		return centre;
-	}      
-
-	void zoom(Aeroport a, Coord coordDebut, Coord coordFin) {
-		setMin(coordDebut);
-		setMax(coordFin);
-		calculCentre();
-		repaint();
-	}
-	
-	boolean isVisible(Coord coordonnees) {
-		if ((coordonnees.getX()<max.getX()) && (coordonnees.getX()>min.getX()) && (coordonnees.getY()<max.getY()) && (coordonnees.getY()>min.getY())) return true;
-		else return false;
-	}
-	
+	/** constructeur de CarteVols sans parametre
+	 * 
+	 */
 	public CarteVols() {
-		setBorder(BorderFactory.createLineBorder(Color.black));
 
 	}
-	
-	
-
 }
